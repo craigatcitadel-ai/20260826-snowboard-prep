@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0C1218">
+<title>Snowboard Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nosleep/0.12.0/NoSleep.min.js"></script>
+<style>
+  :root{
+    --ink:#0C1218;        /* night mountain */
+    --panel:#141D26;
+    --line:#22303C;
+    --snow:#F2F6F8;
+    --mute:#8CA0AE;
+    --ice:#69D2E7;        /* work state */
+    --amber:#FFA94D;      /* rest state */
+    --amber-deep:#3A2A16;
+    --ice-deep:#14303A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--ink);color:var(--snow);
+    font-family:'Inter',system-ui,sans-serif;
+    display:flex;flex-direction:column;
+    max-width:520px;margin:0 auto;min-height:100dvh;
+    transition:background .4s ease;
+  }
+  body.resting{background:var(--amber-deep)}
+  body.working{background:var(--ice-deep)}
+  h1,h2,.big{font-family:'Anton',Impact,sans-serif;font-weight:400;letter-spacing:.02em;text-transform:uppercase}
+  .screen{display:none;flex:1;flex-direction:column;padding:20px 18px 28px}
+  .screen.active{display:flex}
+  .eyebrow{color:var(--mute);font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+  /* ---------- home ---------- */
+  #home h1{font-size:44px;line-height:1.02;margin:10px 0 4px}
+  #home h1 span{color:var(--ice)}
+  .sub{color:var(--mute);font-size:14px;margin-bottom:22px}
+  .pick{margin-bottom:18px}
+  .pick .eyebrow{margin-bottom:8px;display:block}
+  .row{display:flex;gap:8px}
+  .chip{
+    flex:1;background:var(--panel);border:1px solid var(--line);color:var(--snow);
+    border-radius:10px;padding:13px 6px;font:600 14px 'Inter';text-align:center;cursor:pointer;
+  }
+  .chip small{display:block;color:var(--mute);font-weight:400;font-size:11px;margin-top:3px}
+  .chip.sel{border-color:var(--ice);color:var(--ice)}
+  .chip.sel small{color:var(--ice)}
+  .start{
+    margin-top:auto;background:var(--ice);color:var(--ink);border:none;border-radius:12px;
+    padding:18px;font-family:'Anton';font-size:22px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;width:100%;
+  }
+  .ghost{
+    background:none;border:1px solid var(--line);color:var(--mute);border-radius:12px;
+    padding:13px;font:600 14px 'Inter';cursor:pointer;width:100%;margin-top:10px;
+  }
+  /* ---------- workout ---------- */
+  .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .top button{background:none;border:none;color:var(--mute);font:600 13px 'Inter';cursor:pointer}
+  .progress{display:flex;gap:4px;margin:10px 0 22px}
+  .progress i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+  .progress i.done{background:var(--ice)}
+  .progress i.now{background:var(--snow)}
+  .state{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ice)}
+  body.resting .state{color:var(--amber)}
+  #exName{font-size:34px;line-height:1.06;margin:8px 0 8px}
+  #exName a{color:inherit;text-decoration:none;border-bottom:3px solid var(--ice)}
+  #exDetail{color:var(--mute);font-size:14px;line-height:1.55;margin-bottom:18px}
+  .meta{display:flex;gap:22px;margin-bottom:auto}
+  .meta .big{font-size:30px}
+  .meta .eyebrow{margin-bottom:2px}
+  #clock{
+    font-family:'Anton';font-size:110px;line-height:1;text-align:center;
+    margin:auto 0;display:none;color:var(--amber);
+  }
+  body.working #clock{color:var(--ice)}
+  #nextUp{display:none;text-align:center;color:var(--mute);font-size:14px;margin-bottom:18px}
+  #nextUp b{color:var(--snow);font-weight:600;display:block;font-size:16px;margin-top:2px}
+  .action{
+    background:var(--snow);color:var(--ink);border:none;border-radius:12px;padding:18px;
+    font-family:'Anton';font-size:21px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;width:100%;
+  }
+  /* ---------- done ---------- */
+  #done{justify-content:center;text-align:center}
+  #done h2{font-size:46px;margin-bottom:8px;color:var(--ice)}
+  #done p{color:var(--mute);font-size:15px;margin-bottom:26px}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<section id="home" class="screen active">
+  <span class="eyebrow">Snowboard prep</span>
+  <h1>Ride-ready<br><span>in 7 weeks</span></h1>
+  <p class="sub">Pick today's block. Rest timers, set counts and next-exercise prompts are handled for you.</p>
+  <div class="pick"><span class="eyebrow">Phase</span>
+    <div class="row" id="phaseRow">
+      <button class="chip sel" data-p="0">1<small>Foundation</small></button>
+      <button class="chip" data-p="1">2<small>Build</small></button>
+      <button class="chip" data-p="2">3<small>Power</small></button>
+    </div>
+  </div>
+  <div class="pick"><span class="eyebrow">Session</span>
+    <div class="row" id="sessRow">
+      <button class="chip sel" data-s="0">A<small>Squat &amp; rotation</small></button>
+      <button class="chip" data-s="1">B<small>Hinge &amp; single leg</small></button>
+    </div>
+  </div>
+  <button class="start" id="startBtn">Start session</button>
+  <button class="ghost" id="mobilityBtn">Mobility only (10 min)</button>
+</section>
+
+<!-- WORKOUT -->
+<section id="workout" class="screen">
+  <div class="top">
+    <span class="eyebrow" id="sessLabel"></span>
+    <button id="quitBtn">End</button>
+  </div>
+  <div class="progress" id="progressBar"></div>
+  <span class="state" id="stateLabel">Work</span>
+  <h2 id="exName"></h2>
+  <p id="exDetail"></p>
+  <div class="meta">
+    <div><span class="eyebrow">Set</span><div class="big" id="setCount"></div></div>
+    <div><span class="eyebrow" id="targetLabel">Reps</span><div class="big" id="targetVal"></div></div>
+  </div>
+  <div id="clock">0:00</div>
+  <div id="nextUp">Next up<b id="nextName"></b></div>
+  <button class="action" id="mainBtn">Set done</button>
+</section>
+
+<!-- DONE -->
+<section id="done" class="screen">
+  <h2>Session<br>banked</h2>
+  <p id="doneMsg">Legs stronger, hips looser. See you next session.</p>
+  <button class="start" id="homeBtn">Back to start</button>
+</section>
+
+<script>
+/* ---------------- program data ---------------- */
+const V={goblet:"https://www.youtube.com/watch?v=MeIiIdhvXT4",lat:"https://www.youtube.com/watch?v=Vx6mQXEj8kw",
+chop:"https://www.youtube.com/watch?v=sd_BAdlhXww",rdl:"https://www.youtube.com/watch?v=aa57T45iFSE",
+slrdl:"https://www.youtube.com/watch?v=IKstZgIiKQk",swing:"https://www.youtube.com/watch?v=Y30kFfgW-bY",
+bss:"https://www.youtube.com/watch?v=Ozv-OPuVw6A",skater:"https://www.youtube.com/watch?v=gS4F_YrwZVs",
+n090:"https://www.youtube.com/watch?v=f_7qIPxw6nE",couch:"https://www.youtube.com/watch?v=-rsIS-wl-ig"};
+const yq=q=>"https://www.youtube.com/results?search_query="+q;
+
+/* ex: {n:name,u:url,d:description,sets,reps} — reps as string; t:seconds for timed holds */
+const PROGRAM=[
+ {rest:75,sessions:[
+  [ {n:"Goblet squat",u:V.goblet,d:"One dumbbell vertical at your chest. Squat to parallel, drive up through the heels.",sets:3,reps:"10"},
+    {n:"Lateral lunge",u:V.lat,d:"Step wide, sit hips back over that heel, other leg straight, push back to center.",sets:3,reps:"8 / side"},
+    {n:"Half-kneeling chop",u:V.chop,d:"Dumbbell at the down-knee hip. Sweep diagonally up across your body, control it back.",sets:3,reps:"10 / side"},
+    {n:"Russian twist",u:yq("russian+twist+dumbbell+proper+form"),d:"Lean back slightly, rotate the dumbbell side to side across your torso.",sets:2,reps:"12 / side"},
+    {n:"Wall sit",u:yq("wall+sit+proper+form"),d:"Back flat on the wall, thighs parallel. Feel the snowboard burn.",sets:2,t:40} ],
+  [ {n:"Romanian deadlift",u:V.rdl,d:"Soft knees, push hips back, dumbbells slide down your legs until hamstrings stretch, then drive hips forward.",sets:3,reps:"10"},
+    {n:"Split squat",u:yq("dumbbell+split+squat+tutorial"),d:"Staggered stance, back knee to the floor, drive up through the front heel.",sets:3,reps:"8 / side"},
+    {n:"Single-leg RDL",u:V.slrdl,d:"Balance on one leg, hinge forward, rear leg extends behind, dumbbell tracks the standing leg.",sets:2,reps:"8 / side"},
+    {n:"Dumbbell swing",u:V.swing,d:"Both hands on one dumbbell. Hinge, swing it back, snap hips forward to chest height. Hips, not arms.",sets:3,reps:"12"},
+    {n:"Side plank",u:yq("side+plank+proper+form"),d:"On one forearm, body straight, hips high. Switch sides each set.",sets:2,t:30} ]]},
+ {rest:105,sessions:[
+  [ {n:"Goblet squat",u:V.goblet,d:"3-second lowering every rep. Heavier than Phase 1.",sets:4,reps:"6–8"},
+    {n:"Bulgarian split squat",u:V.bss,d:"Rear foot up on a chair. 3-second lowering, front leg does the work.",sets:3,reps:"8 / side"},
+    {n:"Half-kneeling chop",u:V.chop,d:"Same diagonal sweep, heavier dumbbell.",sets:3,reps:"10 / side"},
+    {n:"Wall sit",u:yq("wall+sit+proper+form"),d:"Rest a dumbbell on your thighs if bodyweight is easy.",sets:2,t:55} ],
+  [ {n:"Romanian deadlift",u:V.rdl,d:"Heaviest dumbbells you have. Hips back, flat spine, 3-second lowering.",sets:4,reps:"6–8"},
+    {n:"Single-leg RDL",u:V.slrdl,d:"Add weight from Phase 1. Slow and square hips.",sets:3,reps:"8 / side"},
+    {n:"Dumbbell swing",u:V.swing,d:"Powerful hip snap to chest height.",sets:3,reps:"12"},
+    {n:"Side plank + leg raise",u:yq("side+plank+leg+raise+tutorial"),d:"Side plank with the top leg lifted and held. Switch sides each set.",sets:3,t:25} ]]},
+ {rest:120,sessions:[
+  [ {n:"Jump squat",u:yq("jump+squat+proper+form+tutorial"),d:"Squat, explode into a jump, land soft. Bodyweight or one light dumbbell.",sets:3,reps:"5"},
+    {n:"Skater hops",u:V.skater,d:"Bound side to side, stick and balance every landing. The most snowboard-specific move here.",sets:3,reps:"6 / side"},
+    {n:"Goblet squat",u:V.goblet,d:"Moderate weight, fast on the way up.",sets:3,reps:"6"},
+    {n:"Half-kneeling chop",u:V.chop,d:"Lighter and fast.",sets:2,reps:"8 / side"} ],
+  [ {n:"Dumbbell swing",u:V.swing,d:"Heavy and explosive. Full rests.",sets:4,reps:"10"},
+    {n:"Split squat jump",u:yq("split+squat+jump+tutorial"),d:"From a lunge, jump and switch legs mid-air, land soft in a lunge.",sets:3,reps:"5 / side"},
+    {n:"Romanian deadlift",u:V.rdl,d:"Moderate weight, crisp form.",sets:3,reps:"6"},
+    {n:"Side plank",u:yq("side+plank+proper+form"),d:"Switch sides each set.",sets:2,t:30} ]]}
+];
+const MOBILITY=[
+ {n:"90/90 hip rotations",u:V.n090,d:"Both knees at 90°, rotate them together side to side, hands off the floor if you can.",t:80},
+ {n:"Deep squat hold",u:yq("deep+squat+hold+mobility+tutorial"),d:"Sink to the bottom of a squat, heels down. Hold a doorframe if needed.",t:80},
+ {n:"Couch stretch — left",u:V.couch,d:"Left foot up against the wall, squeeze the glute, feel hip flexor and quad.",t:70},
+ {n:"Couch stretch — right",u:V.couch,d:"Swap legs. Stay tall, glute squeezed.",t:70},
+ {n:"Hamstring flow",u:yq("standing+hamstring+stretch+flow+mobility"),d:"Hinge forward, alternate straightening each leg.",t:80},
+ {n:"Thoracic rotations",u:yq("quadruped+thoracic+rotation+tutorial"),d:"On all fours, hand behind head, elbow to floor then open to the ceiling. Both sides.",t:80}
+];
+const PHASE_NAMES=["Phase 1 · Foundation","Phase 2 · Build","Phase 3 · Power"];
+const SESS_NAMES=["Session A","Session B"];
+
+/* ---------------- state ---------------- */
+let phase=0,sess=0,plan=[],rest=75,mode="strength";
+let ei=0,setNo=1,timer=null,remain=0,resting=false;
+
+/* ---------------- helpers ---------------- */
+const $=id=>document.getElementById(id);
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");}
+function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function buzz(p){if(navigator.vibrate)try{navigator.vibrate(p)}catch(e){}}
+function beep(){try{const c=new (window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();
+ o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(.25,c.currentTime);
+ g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.5);o.start();o.stop(c.currentTime+.5);}catch(e){}}
+let lock=null,noSleep=window.NoSleep?new NoSleep():null,awake=false;
+async function keepAwake(){
+ awake=true;
+ if(noSleep){try{noSleep.enable()}catch(e){}}
+ if(navigator.wakeLock){try{lock=await navigator.wakeLock.request("screen")}catch(e){}}
+}
+function releaseWake(){
+ awake=false;
+ if(noSleep){try{noSleep.disable()}catch(e){}}
+ if(lock){lock.release().catch(()=>{});lock=null}
+}
+/* native wake lock is dropped when the tab is backgrounded — re-grab it on return */
+document.addEventListener("visibilitychange",()=>{
+ if(document.visibilityState==="visible"&&awake)keepAwake();
+});
+
+/* ---------------- home ---------------- */
+$("phaseRow").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
+ phase=+b.dataset.p;[...$("phaseRow").children].forEach(c=>c.classList.toggle("sel",c===b));});
+$("sessRow").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
+ sess=+b.dataset.s;[...$("sessRow").children].forEach(c=>c.classList.toggle("sel",c===b));});
+$("startBtn").onclick=()=>{mode="strength";plan=PROGRAM[phase].sessions[sess];rest=PROGRAM[phase].rest;
+ $("sessLabel").textContent=PHASE_NAMES[phase]+" · "+SESS_NAMES[sess];begin();};
+$("mobilityBtn").onclick=()=>{mode="mobility";plan=MOBILITY;
+ $("sessLabel").textContent="Mobility finisher";begin();};
+$("homeBtn").onclick=()=>{show("home")};
+$("quitBtn").onclick=()=>{stopTimer();document.body.className="";show("home")};
+
+/* ---------------- workout flow ---------------- */
+function begin(){ei=0;setNo=1;stopTimer();document.body.className="";
+ $("progressBar").innerHTML=plan.map(()=>"<i></i>").join("");
+ keepAwake();show("workout");render();
+ if(mode==="mobility")startWork();  /* mobility auto-runs each hold */
+}
+function render(){
+ remain=0;
+ const ex=plan[ei];
+ [...$("progressBar").children].forEach((b,i)=>{b.className=i<ei?"done":i===ei?"now":"";});
+ $("exName").innerHTML='<a href="'+ex.u+'" target="_blank" rel="noopener">'+ex.n+"</a>";
+ $("exDetail").textContent=ex.d;
+ $("setCount").textContent=mode==="mobility"?(ei+1)+" / "+plan.length:setNo+" / "+ex.sets;
+ if(ex.t){$("targetLabel").textContent="Hold";$("targetVal").textContent=ex.t+"s";}
+ else{$("targetLabel").textContent="Reps";$("targetVal").textContent=ex.reps;}
+ $("clock").style.display="none";$("nextUp").style.display="none";
+ document.body.className="";$("stateLabel").textContent=mode==="mobility"?"Stretch":"Work";
+ $("mainBtn").textContent=ex.t?(mode==="mobility"?"Skip stretch":"Start hold"):"Set done";
+}
+$("mainBtn").onclick=()=>{
+ const ex=plan[ei];
+ if(resting){finishRest();return}
+ if(remain>0){ /* skip an active hold */ stopTimer();holdDone();return }
+ if(ex.t){startWork()}else{setDone()}
+};
+function startWork(){ /* timed hold (wall sit, plank, stretch) */
+ const ex=plan[ei];resting=false;remain=ex.t;
+ document.body.className="working";$("stateLabel").textContent=mode==="mobility"?"Stretch":"Hold";
+ $("clock").style.display="block";$("clock").textContent=fmt(remain);
+ $("mainBtn").textContent="Skip";
+ tick(()=>holdDone());
+}
+function holdDone(){buzz([120,60,120]);beep();
+ if(mode==="mobility"){advanceMobility()}else{setDone()}}
+function setDone(){
+ const ex=plan[ei];
+ if(setNo<ex.sets){setNo++;startRest(false)}
+ else if(ei<plan.length-1){startRest(true)}
+ else{finish()}
+}
+function startRest(between){
+ resting=true;remain=rest;
+ document.body.className="resting";$("stateLabel").textContent="Rest";
+ $("clock").style.display="block";$("clock").textContent=fmt(remain);
+ if(between){$("nextUp").style.display="block";$("nextName").textContent=plan[ei+1].n;}
+ $("mainBtn").textContent="Skip rest";
+ tick(()=>{buzz([200,80,200]);beep();finishRest()});
+}
+function finishRest(){
+ stopTimer();resting=false;
+ if($("nextUp").style.display==="block"){ei++;setNo=1;}
+ render();
+}
+function advanceMobility(){stopTimer();
+ if(ei<plan.length-1){ei++;render();startWork()}else{finish()}}
+function finish(){stopTimer();releaseWake();document.body.className="";
+ $("doneMsg").textContent=mode==="mobility"
+  ?"Hips serviced. Do this after rides too."
+  :"Strength banked. 10 minutes of mobility seals it — hit the mobility button on the home screen.";
+ show("done");buzz([300]);beep();}
+let endAt=0,endCb=null;
+function tick(onEnd){stopTimer();
+ endAt=Date.now()+remain*1000;endCb=onEnd;
+ timer=setInterval(step,250);}
+function step(){
+ const left=Math.ceil((endAt-Date.now())/1000);
+ if(left<=0){clearInterval(timer);timer=null;const cb=endCb;endCb=null;remain=0;cb&&cb();return}
+ if(left!==remain){remain=left;$("clock").textContent=fmt(remain);if(remain<=3)buzz(60);}
+}
+/* on returning to the app, snap the timer to true time immediately */
+document.addEventListener("visibilitychange",()=>{
+ if(document.visibilityState==="visible"&&timer)step();
+});
+function stopTimer(){if(timer){clearInterval(timer);timer=null}endCb=null}
+</script>
+</body>
+</html>
