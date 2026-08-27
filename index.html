@@ -109,6 +109,12 @@
       <button class="chip" data-s="1">B<small>Hinge &amp; single leg</small></button>
     </div>
   </div>
+  <div class="pick"><span class="eyebrow">Landing drills · add from month 2, 1–2×/wk</span>
+    <div class="row" id="landRow">
+      <button class="chip sel" data-l="0">Off</button>
+      <button class="chip" data-l="1">On<small>+2 min after warm-up</small></button>
+    </div>
+  </div>
   <button class="start" id="startBtn">Start session</button>
   <button class="ghost" id="mobilityBtn">Mobility only (10 min)</button>
 </section>
@@ -130,6 +136,7 @@
   <div id="clock">0:00</div>
   <div id="nextUp">Next up<b id="nextName"></b></div>
   <button class="action" id="mainBtn">Set done</button>
+  <button class="ghost" id="skipWarm" style="display:none">Skip warm-up →</button>
 </section>
 
 <!-- DONE -->
@@ -151,29 +158,29 @@ const yq=q=>"https://www.youtube.com/results?search_query="+q;
 /* ex: {n:name,u:url,d:description,sets,reps} — reps as string; t:seconds for timed holds */
 const PROGRAM=[
  {rest:75,sessions:[
-  [ {n:"Goblet squat",u:V.goblet,d:"One dumbbell vertical at your chest. Squat to parallel, drive up through the heels.",sets:3,reps:"10"},
+  [ {n:"Goblet squat",u:V.goblet,d:"One dumbbell vertical at your chest. Squat to parallel, drive up through the heels. SS during rests: one-arm row, 10/side.",sets:3,reps:"10"},
     {n:"Lateral lunge",u:V.lat,d:"Step wide, sit hips back over that heel, other leg straight, push back to center.",sets:3,reps:"8 / side"},
-    {n:"Half-kneeling chop",u:V.chop,d:"Dumbbell at the down-knee hip. Sweep diagonally up across your body, control it back.",sets:3,reps:"10 / side"},
-    {n:"Russian twist",u:yq("russian+twist+dumbbell+proper+form"),d:"Lean back slightly, rotate the dumbbell side to side across your torso.",sets:2,reps:"12 / side"},
-    {n:"Wall sit",u:yq("wall+sit+proper+form"),d:"Back flat on the wall, thighs parallel. Feel the snowboard burn.",sets:2,t:40} ],
-  [ {n:"Romanian deadlift",u:V.rdl,d:"Soft knees, push hips back, dumbbells slide down your legs until hamstrings stretch, then drive hips forward.",sets:3,reps:"10"},
+    {n:"Half-kneeling chop",u:V.chop,d:"Sweep the dumbbell diagonally up across your body. Controlled anti-rotation, not hard twisting.",sets:3,reps:"10 / side"},
+    {n:"Dead bug",u:yq("dead+bug+exercise+proper+form"),d:"On your back, arms up, knees at 90\u00B0. Lower opposite arm and leg slowly, lower back pressed flat.",sets:2,reps:"8 / side"},
+    {n:"Wall sit",u:yq("wall+sit+proper+form"),d:"Back flat on the wall, thighs parallel. SS between holds: single-leg calf raises, 10/side, slow down.",sets:2,t:40} ],
+  [ {n:"Romanian deadlift",u:V.rdl,d:"Soft knees, hips back, dumbbells slide down your legs until hamstrings stretch, then drive hips forward. SS during rests: push-ups, 8\u201312.",sets:3,reps:"10"},
     {n:"Split squat",u:yq("dumbbell+split+squat+tutorial"),d:"Staggered stance, back knee to the floor, drive up through the front heel.",sets:3,reps:"8 / side"},
-    {n:"Single-leg RDL",u:V.slrdl,d:"Balance on one leg, hinge forward, rear leg extends behind, dumbbell tracks the standing leg.",sets:2,reps:"8 / side"},
+    {n:"Sliding hamstring curl",u:yq("sliding+hamstring+curl+towel"),d:"On your back, heels on towels on a smooth floor. Bridge up, slide heels out and back without dropping hips.",sets:2,reps:"8"},
     {n:"Dumbbell swing",u:V.swing,d:"Both hands on one dumbbell. Hinge, swing it back, snap hips forward to chest height. Hips, not arms.",sets:3,reps:"12"},
-    {n:"Side plank",u:yq("side+plank+proper+form"),d:"On one forearm, body straight, hips high. Switch sides each set.",sets:2,t:30} ]]},
+    {n:"Side plank",u:yq("side+plank+proper+form"),d:"On one forearm, body straight, hips high. Switch sides each set. SS between sides: tibialis raises, 15 (back on wall, lift toes).",sets:2,t:30} ]]},
  {rest:105,sessions:[
-  [ {n:"Goblet squat",u:V.goblet,d:"3-second lowering every rep. Heavier than Phase 1.",sets:4,reps:"6–8"},
-    {n:"Bulgarian split squat",u:V.bss,d:"Rear foot up on a chair. 3-second lowering, front leg does the work.",sets:3,reps:"8 / side"},
+  [ {n:"Goblet squat",u:V.goblet,d:"3-second lowering every rep. Heavier than Phase 1. SS during rests: one-arm row, 8\u201312/side.",sets:4,reps:"6\u20138"},
+    {n:"Bulgarian split squat",u:V.bss,d:"Rear foot up on a chair. 3-second lowering, front leg does the work.",sets:3,reps:"6\u20138 / side"},
     {n:"Half-kneeling chop",u:V.chop,d:"Same diagonal sweep, heavier dumbbell.",sets:3,reps:"10 / side"},
-    {n:"Wall sit",u:yq("wall+sit+proper+form"),d:"Rest a dumbbell on your thighs if bodyweight is easy.",sets:2,t:55} ],
-  [ {n:"Romanian deadlift",u:V.rdl,d:"Heaviest dumbbells you have. Hips back, flat spine, 3-second lowering.",sets:4,reps:"6–8"},
+    {n:"Wall sit",u:yq("wall+sit+proper+form"),d:"DB on your thighs if bodyweight is easy. SS between holds: single-leg calf raises, 10\u201315/side, slow down.",sets:2,t:55} ],
+  [ {n:"Romanian deadlift",u:V.rdl,d:"Heaviest dumbbells you have. Hips back, flat spine, 3-second lowering. SS during rests: push-ups or DB floor press, 8\u201315.",sets:4,reps:"6–8"},
     {n:"Single-leg RDL",u:V.slrdl,d:"Add weight from Phase 1. Slow and square hips.",sets:3,reps:"8 / side"},
-    {n:"Dumbbell swing",u:V.swing,d:"Powerful hip snap to chest height.",sets:3,reps:"12"},
-    {n:"Side plank + leg raise",u:yq("side+plank+leg+raise+tutorial"),d:"Side plank with the top leg lifted and held. Switch sides each set.",sets:3,t:25} ]]},
+    {n:"Sliding hamstring curl",u:yq("sliding+hamstring+curl+towel"),d:"Bridge up, heels on towels, slide out and back with hips high. Progress: slower slides or single-leg.",sets:2,reps:"8\u201310"},
+    {n:"Side plank + leg raise",u:yq("side+plank+leg+raise+tutorial"),d:"Side plank with the top leg lifted and held. Switch sides each set. SS between sides: tibialis raises, 15\u201320.",sets:3,t:25} ]]},
  {rest:120,sessions:[
   [ {n:"Jump squat",u:yq("jump+squat+proper+form+tutorial"),d:"Squat, explode into a jump, land soft. Bodyweight or one light dumbbell.",sets:3,reps:"5"},
     {n:"Skater hops",u:V.skater,d:"Bound side to side, stick and balance every landing. The most snowboard-specific move here.",sets:3,reps:"6 / side"},
-    {n:"Goblet squat",u:V.goblet,d:"Moderate weight, fast on the way up.",sets:3,reps:"6"},
+    {n:"Goblet squat",u:V.goblet,d:"Moderate weight. Fast on the way up, controlled on the way down.",sets:3,reps:"6"},
     {n:"Half-kneeling chop",u:V.chop,d:"Lighter and fast.",sets:2,reps:"8 / side"} ],
   [ {n:"Dumbbell swing",u:V.swing,d:"Heavy and explosive. Full rests.",sets:4,reps:"10"},
     {n:"Split squat jump",u:yq("split+squat+jump+tutorial"),d:"From a lunge, jump and switch legs mid-air, land soft in a lunge.",sets:3,reps:"5 / side"},
@@ -188,11 +195,23 @@ const MOBILITY=[
  {n:"Hamstring flow",u:yq("standing+hamstring+stretch+flow+mobility"),d:"Hinge forward, alternate straightening each leg.",t:80},
  {n:"Thoracic rotations",u:yq("quadruped+thoracic+rotation+tutorial"),d:"On all fours, hand behind head, elbow to floor then open to the ceiling. Both sides.",t:80}
 ];
+const WARMUP=[
+ {n:"Leg swings",u:yq("leg+swings+dynamic+warm+up"),d:"Hold a wall. Swing one leg front-to-back 15 times, then side-to-side 10. Switch legs.",t:80},
+ {n:"Bodyweight squats",u:yq("bodyweight+squat+warm+up"),d:"Slow and deep, arms reaching forward as you sink. Wake the knees and hips up.",t:60},
+ {n:"Hip circles",u:yq("standing+hip+circles+warm+up"),d:"Hands on hips, big slow circles both directions, then knee-up circles each leg.",t:60},
+ {n:"Arm circles + reach",u:yq("arm+circles+dynamic+warm+up"),d:"Big circles forward and back, then reach overhead and side-bend each way.",t:50},
+ {n:"Inchworm walkouts",u:yq("inchworm+exercise+warm+up"),d:"Hinge down, walk hands out to a plank, walk back, stand tall. Smooth reps.",t:60}
+];
+const LANDING=[
+ {n:"Snap-down to stick",u:yq("snap+down+landing+drill"),d:"Reach tall, snap down into an athletic landing and freeze. 2\u00D75 quality reps. Quiet, knees over toes.",t:40},
+ {n:"Pogo hops",u:yq("pogo+hops+drill"),d:"Small stiff-ankle bounces in place. Springy and quiet.",t:35},
+ {n:"Line hops, side to side",u:yq("lateral+line+hops+drill"),d:"Quick low hops over a line or towel. Stop if landings get loud or sloppy.",t:30}
+];
 const PHASE_NAMES=["Phase 1 · Foundation","Phase 2 · Build","Phase 3 · Power"];
 const SESS_NAMES=["Session A","Session B"];
 
 /* ---------------- state ---------------- */
-let phase=0,sess=0,plan=[],rest=75,mode="strength";
+let phase=0,sess=0,plan=[],rest=75,mode="strength",pending=null,land=0;
 let ei=0,setNo=1,timer=null,remain=0,resting=false;
 
 /* ---------------- helpers ---------------- */
@@ -224,8 +243,13 @@ $("phaseRow").addEventListener("click",e=>{const b=e.target.closest(".chip");if(
  phase=+b.dataset.p;[...$("phaseRow").children].forEach(c=>c.classList.toggle("sel",c===b));});
 $("sessRow").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
  sess=+b.dataset.s;[...$("sessRow").children].forEach(c=>c.classList.toggle("sel",c===b));});
-$("startBtn").onclick=()=>{mode="strength";plan=PROGRAM[phase].sessions[sess];rest=PROGRAM[phase].rest;
- $("sessLabel").textContent=PHASE_NAMES[phase]+" · "+SESS_NAMES[sess];begin();};
+$("landRow").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
+ land=+b.dataset.l;[...$("landRow").children].forEach(c=>c.classList.toggle("sel",c===b));});
+$("startBtn").onclick=()=>{
+ pending={plan:PROGRAM[phase].sessions[sess],rest:PROGRAM[phase].rest,
+  label:PHASE_NAMES[phase]+" · "+SESS_NAMES[sess]};
+ mode="warmup";plan=land?WARMUP.concat(LANDING):WARMUP;
+ $("sessLabel").textContent=pending.label+" · Warm-up";begin();};
 $("mobilityBtn").onclick=()=>{mode="mobility";plan=MOBILITY;
  $("sessLabel").textContent="Mobility finisher";begin();};
 $("homeBtn").onclick=()=>{show("home")};
@@ -235,7 +259,7 @@ $("quitBtn").onclick=()=>{stopTimer();document.body.className="";show("home")};
 function begin(){ei=0;setNo=1;stopTimer();document.body.className="";
  $("progressBar").innerHTML=plan.map(()=>"<i></i>").join("");
  keepAwake();show("workout");render();
- if(mode==="mobility")startWork();  /* mobility auto-runs each hold */
+ if(mode!=="strength")startWork();  /* warm-up and mobility auto-run each move */
 }
 function render(){
  remain=0;
@@ -243,12 +267,14 @@ function render(){
  [...$("progressBar").children].forEach((b,i)=>{b.className=i<ei?"done":i===ei?"now":"";});
  $("exName").innerHTML='<a href="'+ex.u+'" target="_blank" rel="noopener">'+ex.n+"</a>";
  $("exDetail").textContent=ex.d;
- $("setCount").textContent=mode==="mobility"?(ei+1)+" / "+plan.length:setNo+" / "+ex.sets;
+ $("setCount").textContent=mode==="strength"?setNo+" / "+ex.sets:(ei+1)+" / "+plan.length;
  if(ex.t){$("targetLabel").textContent="Hold";$("targetVal").textContent=ex.t+"s";}
  else{$("targetLabel").textContent="Reps";$("targetVal").textContent=ex.reps;}
  $("clock").style.display="none";$("nextUp").style.display="none";
- document.body.className="";$("stateLabel").textContent=mode==="mobility"?"Stretch":"Work";
- $("mainBtn").textContent=ex.t?(mode==="mobility"?"Skip stretch":"Start hold"):"Set done";
+ document.body.className="";
+ $("stateLabel").textContent=mode==="mobility"?"Stretch":mode==="warmup"?"Warm-up":"Work";
+ $("skipWarm").style.display=mode==="warmup"?"block":"none";
+ $("mainBtn").textContent=ex.t?(mode==="strength"?"Start hold":"Skip move"):"Set done";
 }
 $("mainBtn").onclick=()=>{
  const ex=plan[ei];
@@ -258,13 +284,14 @@ $("mainBtn").onclick=()=>{
 };
 function startWork(){ /* timed hold (wall sit, plank, stretch) */
  const ex=plan[ei];resting=false;remain=ex.t;
- document.body.className="working";$("stateLabel").textContent=mode==="mobility"?"Stretch":"Hold";
+ document.body.className="working";
+ $("stateLabel").textContent=mode==="mobility"?"Stretch":mode==="warmup"?"Warm-up":"Hold";
  $("clock").style.display="block";$("clock").textContent=fmt(remain);
  $("mainBtn").textContent="Skip";
  tick(()=>holdDone());
 }
 function holdDone(){buzz([120,60,120]);beep();
- if(mode==="mobility"){advanceMobility()}else{setDone()}}
+ if(mode==="strength"){setDone()}else{advanceMobility()}}
 function setDone(){
  const ex=plan[ei];
  if(setNo<ex.sets){setNo++;startRest(false)}
@@ -284,9 +311,19 @@ function finishRest(){
  if($("nextUp").style.display==="block"){ei++;setNo=1;}
  render();
 }
+function startPending(){
+ mode="strength";plan=pending.plan;rest=pending.rest;
+ $("sessLabel").textContent=pending.label;
+ ei=0;setNo=1;stopTimer();document.body.className="";
+ $("progressBar").innerHTML=plan.map(()=>"<i></i>").join("");
+ render();buzz([150]);
+}
+$("skipWarm").onclick=()=>{stopTimer();startPending()};
 function advanceMobility(){stopTimer();
  if(ei<plan.length-1){ei++;render();startWork()}else{finish()}}
-function finish(){stopTimer();releaseWake();document.body.className="";
+function finish(){stopTimer();
+ if(mode==="warmup"){startPending();return}
+ releaseWake();document.body.className="";
  $("doneMsg").textContent=mode==="mobility"
   ?"Hips serviced. Do this after rides too."
   :"Strength banked. 10 minutes of mobility seals it — hit the mobility button on the home screen.";
