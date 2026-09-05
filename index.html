@@ -117,6 +117,7 @@
   </div>
   <button class="start" id="startBtn">Start session</button>
   <button class="ghost" id="mobilityBtn">Mobility only (10 min)</button>
+  <button class="ghost" id="poolBtn">Pool stretches (8 min)</button>
 </section>
 
 <!-- WORKOUT -->
@@ -207,6 +208,20 @@ const LANDING=[
  {n:"Pogo hops",u:yq("pogo+hops+drill"),d:"Small stiff-ankle bounces in place. Springy and quiet.",t:35},
  {n:"Line hops, side to side",u:yq("lateral+line+hops+drill"),d:"Quick low hops over a line or towel. Stop if landings get loud or sloppy.",t:30}
 ];
+const POOL=[
+ {n:"Hip flexor lunge — left",u:yq("pool+hip+flexor+lunge+stretch"),d:"Lunge with the left leg back, torso tall, push the left hip forward and down. Back toes point forward.",t:40},
+ {n:"Hip flexor lunge — right",u:yq("pool+hip+flexor+lunge+stretch"),d:"Swap: right leg back, hip forward and down, chest tall.",t:40},
+ {n:"Figure-four — left",u:yq("standing+figure+four+glute+stretch"),d:"Left shin against the wall, sit back on the standing leg until the back of the left hip stretches.",t:40},
+ {n:"Figure-four — right",u:yq("standing+figure+four+glute+stretch"),d:"Swap sides. Standing foot planted, spine fairly straight.",t:40},
+ {n:"Side lunge — left",u:yq("side+lunge+adductor+stretch"),d:"Wide stance, toes forward, sink over the bent left leg, right leg long. Don't let the knee collapse inward.",t:35},
+ {n:"Side lunge — right",u:yq("side+lunge+adductor+stretch"),d:"Shift across and sink over the right leg.",t:35},
+ {n:"Calf, straight knee — left",u:yq("wall+calf+stretch+straight+knee"),d:"Left foot back on the step or floor, heel down, knee straight, lean into the wall.",t:30},
+ {n:"Calf, straight knee — right",u:yq("wall+calf+stretch+straight+knee"),d:"Swap legs. Both feet point straight at the wall.",t:30},
+ {n:"Calf, bent knee — left",u:yq("soleus+stretch+bent+knee+calf"),d:"Same position, left knee slightly bent — this reaches the deeper calf your boots fight all day.",t:30},
+ {n:"Calf, bent knee — right",u:yq("soleus+stretch+bent+knee+calf"),d:"Swap legs, knee soft, heel down.",t:30},
+ {n:"Torso rotations",u:yq("pool+torso+rotation+exercise"),d:"Arms out on the surface, rotate side to side from the hips. Slow and smooth.",t:30},
+ {n:"Snowboard-stance hold",u:yq("snowboard+stance+squat+hold"),d:"Feet offset like on your board, knees soft, chest up. Sit into your riding stance and breathe.",t:60}
+];
 const PHASE_NAMES=["Phase 1 · Foundation","Phase 2 · Build","Phase 3 · Power"];
 const SESS_NAMES=["Session A","Session B"];
 
@@ -250,8 +265,13 @@ $("startBtn").onclick=()=>{
   label:PHASE_NAMES[phase]+" · "+SESS_NAMES[sess]};
  mode="warmup";plan=land?WARMUP.concat(LANDING):WARMUP;
  $("sessLabel").textContent=pending.label+" · Warm-up";begin();};
+let doneText="";
 $("mobilityBtn").onclick=()=>{mode="mobility";plan=MOBILITY;
+ doneText="Hips serviced. Do this after rides too.";
  $("sessLabel").textContent="Mobility finisher";begin();};
+$("poolBtn").onclick=()=>{mode="mobility";plan=POOL;
+ doneText="Pool mobility banked. Dry off, hydrate, and stay warm.";
+ $("sessLabel").textContent="Pool stretches";begin();};
 $("homeBtn").onclick=()=>{show("home")};
 $("quitBtn").onclick=()=>{stopTimer();document.body.className="";show("home")};
 
@@ -325,7 +345,7 @@ function finish(){stopTimer();
  if(mode==="warmup"){startPending();return}
  releaseWake();document.body.className="";
  $("doneMsg").textContent=mode==="mobility"
-  ?"Hips serviced. Do this after rides too."
+  ?doneText
   :"Strength banked. 10 minutes of mobility seals it — hit the mobility button on the home screen.";
  show("done");buzz([300]);beep();}
 let endAt=0,endCb=null;
